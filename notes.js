@@ -1,36 +1,53 @@
 const fs = require('fs');
 
-const getNotes = function () {
-    return 'List of Notes';
+const getNotes = () => {
+    return loadNotes();
 }
 
-const addNote = function (title, body) {
+
+const getNote = (title) => {
     const notes = loadNotes();
-    const duplicateNotes = notes.filter(function (note) {
-        return note.title === title;
-    });
 
-    if (duplicateNotes.length === 0) {
+    const note = notes.find((note) => note.title === title);
+    if (!note) {
+        console.log('Note Not found');
+    } else {
+        console.log('Note Found : ', note.title, note.body);
+    }
+}
 
+const removeNote = (title) => {
+    const notes = loadNotes();
+    notesToDelete = notes.filter((note) => note.title !== title);
+
+    if (notes.length > notesToDelete.length) {
+        saveData(notesToDelete);
+        console.log('Note Deleted');
+    } else {
+        console.log('Note doesnt exist');
+    }
+}
+
+const addNote = (title, body) => {
+    const notes = loadNotes();
+    //const duplicateNotes = notes.filter((note) => note.title === title);
+    const duplicateNote = notes.find((note) => note.title === title);
+
+    if (!duplicateNote) {
         notes.push({
             title: title,
             body: body
         });
 
         saveData(notes);
-
         console.log('Note Added.');
-
-
     } else {
         console.log('Note Already added.');
     }
-
 }
 
 
-const loadNotes = function () {
-
+const loadNotes = () => {
     try {
         const dataBuffer = fs.readFileSync('notes.json');
         const notesJSONString = dataBuffer.toString();
@@ -40,12 +57,14 @@ const loadNotes = function () {
     }
 }
 
-const saveData = function (notes) {
+const saveData = (notes) => {
     const notesJSONString = JSON.stringify(notes);
     fs.writeFileSync('notes.json', notesJSONString);
 }
 
 module.exports = {
     getNotes: getNotes,
-    addNote: addNote
+    addNote: addNote,
+    removeNote: removeNote,
+    getNote: getNote
 }
